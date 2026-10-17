@@ -1,0 +1,14 @@
+ip prefix-list ANYCAST-DNS-V4 seq 10 permit 172.31.0.15/32
+ipv6 prefix-list ANYCAST-DNS-V6 seq 10 permit 2001:DB8::FF/128
+
+route-map OSPF-CONNECTED-V4 permit 10
+ match ip address prefix-list ANYCAST-DNS-V4
+
+route-map OSPF-CONNECTED-V6 permit 10
+ match ipv6 address prefix-list ANYCAST-DNS-V6
+
+router ospf
+ redistribute connected route-map OSPF-CONNECTED-V4
+
+router ospf6
+ redistribute connected route-map OSPF-CONNECTED-V6

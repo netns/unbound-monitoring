@@ -1,0 +1,1410 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    - uuid: e845874a3c314aefaa6c23d8b6c0bc4a
+      template: 'Unbound by Zabbix Agent'
+      name: 'Unbound by Zabbix Agent'
+      description: |
+        Unbound Monitoring Template for Zabbix
+        
+        Developed by Daniel Lima <contato@dnlima.dev.br>
+        
+        Copyright (c) 2026, Daniel Lima.
+        Licensed under the BSD 2-Clause License.
+        
+        Repository: https://github.com/netns/unbound-monitoring
+        License: https://github.com/netns/unbound-monitoring/blob/master/LICENSE
+        
+        Requirements:
+        - Zabbix Agent
+        - Unbound DNS resolver
+        - Unbound statistics enabled
+        
+        Features:
+        - Unbound statistics collection
+        - DNS query and cache metrics
+        - Recursive resolution statistics
+        - Per-thread metrics discovery
+        
+        Documentation:
+        See the project README for installation, configuration, and usage instructions.
+      groups:
+        - name: Templates/Applications
+      items:
+        - uuid: 04d1a9625a5240769dbf008bed4b0321
+          name: 'Cache hits per second'
+          type: DEPENDENT
+          key: unbound.cache.hits
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.cache.hits"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: cache
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: f5837b4defee4f3cadcb40900cb4d28d
+          name: 'Cache misses per second'
+          type: DEPENDENT
+          key: unbound.cache.misses
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.cache.misses"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: cache
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: a158c7ebd73b4388be8e90ac45f8a75a
+          name: 'DNSSEC failed (bogus) per second'
+          type: DEPENDENT
+          key: unbound.dnssec.bogus
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.dnssec.bogus"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: dnssec
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: e634427636c940c484c1015364426074
+          name: 'DNSSEC RRset bogus per second'
+          type: DEPENDENT
+          key: unbound.dnssec.bogus.rrset
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.dnssec.rrset_bogus"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: dnssec
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 9b4c4bc2fc464c3c849198629ee7164a
+          name: 'DNSSEC secure per second'
+          type: DEPENDENT
+          key: unbound.dnssec.secure
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.dnssec.secure"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: dnssec
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 1f6ccbf6f1eb440bbf52593f12fc2032
+          name: 'Total tracked memory'
+          type: CALCULATED
+          key: unbound.memory.cache.total
+          delay: 30s
+          history: 7d
+          trends: 90d
+          units: B
+          params: |
+            last(//unbound.memory.message_cache)
+            +
+            last(//unbound.memory.rrset_cache)
+            +
+            last(//unbound.memory.iterator)
+            +
+            last(//unbound.memory.validator)
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: memory
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 003c2ba7a7c94607a1030042c2a5207b
+          name: 'Iterator module memory'
+          type: DEPENDENT
+          key: unbound.memory.iterator
+          history: 7d
+          trends: 90d
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.memory.iterator"]'
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: memory
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: f958b9cd2d67458abf5cea2880565765
+          name: 'Messages cache memory'
+          type: DEPENDENT
+          key: unbound.memory.message_cache
+          history: 7d
+          trends: 90d
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.memory.message_cache"]'
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: memory
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 4431b036ad854c0e94f8b45f581734a6
+          name: 'RRset cache memory'
+          type: DEPENDENT
+          key: unbound.memory.rrset_cache
+          history: 7d
+          trends: 90d
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.memory.rrset_cache"]'
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: memory
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: f2968abb6d9a4052868fe5628f367576
+          name: 'Validator module memory'
+          type: DEPENDENT
+          key: unbound.memory.validator
+          history: 7d
+          trends: 90d
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.memory.validator"]'
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: memory
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 4562f71a20594779aab30a098f642432
+          name: 'Unbound Metrics'
+          key: unbound.metrics
+          delay: 30s
+          history: '0'
+          value_type: TEXT
+          tags:
+            - tag: application
+              value: unbound
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: bc848b19a631434194bd9b275344938e
+          name: 'Queries per second'
+          type: DEPENDENT
+          key: unbound.queries
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.queries"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: queries
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 496aaf6a8a7d4da6b6d51d67164e0ef6
+          name: 'A queries per second'
+          type: DEPENDENT
+          key: unbound.queries.type.a
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.queries.type.a"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: query_types
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 352e6b354c74491c8d157fa31f920fc5
+          name: 'AAAA queries per second'
+          type: DEPENDENT
+          key: unbound.queries.type.aaaa
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.queries.type.aaaa"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: query_types
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 0e2c3c4af6fc428e8c9df81416deacb8
+          name: 'CNAME queries per second'
+          type: DEPENDENT
+          key: unbound.queries.type.cname
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.queries.type.cname"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: query_types
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: f7ff00287f5940f294cae6886f33d315
+          name: 'MX queries per second'
+          type: DEPENDENT
+          key: unbound.queries.type.mx
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.queries.type.mx"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: query_types
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 6a8847ab91d44e52b7219a78f0d0b32c
+          name: 'NS queries per second'
+          type: DEPENDENT
+          key: unbound.queries.type.ns
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.queries.type.ns"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: query_types
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: d8aa0301bb1842c9bb327232e82985b9
+          name: 'PTR queries per second'
+          type: DEPENDENT
+          key: unbound.queries.type.ptr
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.queries.type.ptr"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: query_types
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 3c443df7140c4eb2bea039e1ffe14647
+          name: 'SOA queries per second'
+          type: DEPENDENT
+          key: unbound.queries.type.soa
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.queries.type.soa"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: query_types
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 97fbab7e9e67462c8e0b14b62b3c9eaf
+          name: 'SRV queries per second'
+          type: DEPENDENT
+          key: unbound.queries.type.srv
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.queries.type.srv"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: query_types
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 3f8bf02c2fec43d5893db02d1de2dbaa
+          name: 'TXT queries per second'
+          type: DEPENDENT
+          key: unbound.queries.type.txt
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.queries.type.txt"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: query_types
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 4128b29724494ab481e4fc39141fb3b7
+          name: 'NODATA messages per second'
+          type: DEPENDENT
+          key: unbound.rcode.nodata
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.rcode.nodata"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: response_codes
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 2856eabb112d43eba1d4db22c5e6526b
+          name: 'NOERROR messages per second'
+          type: DEPENDENT
+          key: unbound.rcode.noerror
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.rcode.noerror"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: response_codes
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 70cb7acc3f584989ba6f06ce5e7a50da
+          name: 'NXDOMAIN messages per second'
+          type: DEPENDENT
+          key: unbound.rcode.nxdomain
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.rcode.nxdomain"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: response_codes
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 7b3c0fbb40bc467981a146f2506a2f90
+          name: 'REFUSED messages per second'
+          type: DEPENDENT
+          key: unbound.rcode.refused
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.rcode.refused"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: response_codes
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 4ae468253d9b4d3b980521c952c969a8
+          name: 'SERVFAIL messages per second'
+          type: DEPENDENT
+          key: unbound.rcode.servfail
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.rcode.servfail"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: response_codes
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: e76df549deaf41718cad8964c1905c1f
+          name: 'Recursive replies per second'
+          type: DEPENDENT
+          key: unbound.recursion.replies
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: Qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.recursion.replies"]'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: cache
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 40ff727ac37f45ec8ea3863e67875902
+          name: 'Average recursion time'
+          type: DEPENDENT
+          key: unbound.recursion.time.avg
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: s
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.recursion.time.avg"]'
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: recursion_time
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 43cedffb1b6e475c91a3321c0c32d0e2
+          name: 'Median recursion time'
+          type: DEPENDENT
+          key: unbound.recursion.time.median
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: s
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.recursion.time.median"]'
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: recursion_time
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+        - uuid: 527fd8f5a693428aae2dfc479b152507
+          name: 'Service uptime'
+          type: DEPENDENT
+          key: unbound.uptime
+          history: 7d
+          value_type: FLOAT
+          trends: 90d
+          units: s
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.["unbound.uptime"]'
+          master_item:
+            key: unbound.metrics
+          tags:
+            - tag: application
+              value: unbound
+            - tag: metric
+              value: uptime
+            - tag: scope
+              value: global
+            - tag: service
+              value: dns
+      discovery_rules:
+        - uuid: 864dc774c19f49349b90eaa3f5163985
+          name: 'Thread discover'
+          type: DEPENDENT
+          key: unbound.thread.discover
+          item_prototypes:
+            - uuid: f2edc2db510646a7a35bd035b04e428e
+              name: 'Unbound: Thread {#THREAD.ID}: Cache hits per second'
+              type: DEPENDENT
+              key: 'unbound.thread.cache.hits[{#THREAD.ID}]'
+              history: 7d
+              value_type: FLOAT
+              trends: 90d
+              units: Qps
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.threads.["{#THREAD.ID}"].cache_hits'
+                - type: CHANGE_PER_SECOND
+              master_item:
+                key: unbound.metrics
+              tags:
+                - tag: application
+                  value: unbound
+                - tag: metric
+                  value: cache
+                - tag: scope
+                  value: thread
+                - tag: service
+                  value: dns
+                - tag: thread_id
+                  value: '{#THREAD.ID}'
+            - uuid: 91cd6d43676f48deb886f65c54910300
+              name: 'Unbound: Thread {#THREAD.ID}: Cache misses per second'
+              type: DEPENDENT
+              key: 'unbound.thread.cache.misses[{#THREAD.ID}]'
+              history: 7d
+              value_type: FLOAT
+              trends: 90d
+              units: Qps
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.threads.["{#THREAD.ID}"].cache_misses'
+                - type: CHANGE_PER_SECOND
+              master_item:
+                key: unbound.metrics
+              tags:
+                - tag: application
+                  value: unbound
+                - tag: metric
+                  value: cache
+                - tag: scope
+                  value: thread
+                - tag: service
+                  value: dns
+                - tag: thread_id
+                  value: '{#THREAD.ID}'
+            - uuid: 379890ba9200456fa9c7ed62c2a605e7
+              name: 'Unbound: Thread {#THREAD.ID}: Queries per second'
+              type: DEPENDENT
+              key: 'unbound.thread.queries[{#THREAD.ID}]'
+              history: 7d
+              value_type: FLOAT
+              trends: 90d
+              units: Qps
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.threads.["{#THREAD.ID}"].queries'
+                - type: CHANGE_PER_SECOND
+              master_item:
+                key: unbound.metrics
+              tags:
+                - tag: application
+                  value: unbound
+                - tag: metric
+                  value: queries
+                - tag: scope
+                  value: thread
+                - tag: service
+                  value: dns
+                - tag: thread_id
+                  value: '{#THREAD.ID}'
+            - uuid: de32b9231cb64a778bc3c71eaaa2bf2b
+              name: 'Unbound: Thread {#THREAD.ID}: Average recursion time'
+              type: DEPENDENT
+              key: 'unbound.thread.recursion.time.avg[{#THREAD.ID}]'
+              history: 7d
+              value_type: FLOAT
+              trends: 90d
+              units: s
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.threads.["{#THREAD.ID}"].recursion_time_avg'
+              master_item:
+                key: unbound.metrics
+              tags:
+                - tag: application
+                  value: unbound
+                - tag: metric
+                  value: recursion_time
+                - tag: scope
+                  value: thread
+                - tag: service
+                  value: dns
+                - tag: thread_id
+                  value: '{#THREAD.ID}'
+            - uuid: f9c50ee4635748649139bc0597ba7610
+              name: 'Unbound: Thread {#THREAD.ID}: Median recursion time'
+              type: DEPENDENT
+              key: 'unbound.thread.recursion.time.median[{#THREAD.ID}]'
+              history: 7d
+              value_type: FLOAT
+              trends: 90d
+              units: s
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.threads.["{#THREAD.ID}"].recursion_time_median'
+              master_item:
+                key: unbound.metrics
+              tags:
+                - tag: application
+                  value: unbound
+                - tag: metric
+                  value: recursion_time
+                - tag: scope
+                  value: thread
+                - tag: service
+                  value: dns
+                - tag: thread_id
+                  value: '{#THREAD.ID}'
+          graph_prototypes:
+            - uuid: ed2fbb7869ca41c1867860a66773ab6a
+              name: 'Thread {#THREAD.ID} queries'
+              show_triggers: 'NO'
+              graph_items:
+                - drawtype: BOLD_LINE
+                  color: 199C0D
+                  calc_fnc: ALL
+                  item:
+                    host: 'Unbound by Zabbix Agent'
+                    key: 'unbound.thread.cache.hits[{#THREAD.ID}]'
+                - sortorder: '1'
+                  drawtype: BOLD_LINE
+                  color: F63100
+                  calc_fnc: ALL
+                  item:
+                    host: 'Unbound by Zabbix Agent'
+                    key: 'unbound.thread.cache.misses[{#THREAD.ID}]'
+                - sortorder: '2'
+                  drawtype: BOLD_LINE
+                  color: 2774A4
+                  calc_fnc: ALL
+                  item:
+                    host: 'Unbound by Zabbix Agent'
+                    key: 'unbound.thread.queries[{#THREAD.ID}]'
+          master_item:
+            key: unbound.metrics
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var result = [];
+                  
+                  Object.keys(data.threads).forEach(function (id) {
+                      result.push({
+                          "{#THREAD.ID}": id
+                      });
+                  });
+                  
+                  return JSON.stringify(result);
+      dashboards:
+        - uuid: 9e825884105f416dac1be32220124d01
+          name: 'Unbound Metrics'
+          pages:
+            - widgets:
+                - type: item
+                  name: 'Service uptime'
+                  width: '12'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.uptime
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                - type: graphprototype
+                  name: 'Queries per thread'
+                  'y': '2'
+                  width: '36'
+                  height: '8'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: GRAPH_PROTOTYPE
+                      name: graphid.0
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        name: 'Thread {#THREAD.ID} queries'
+                    - type: STRING
+                      name: reference
+                      value: ZXFRS
+                    - type: INTEGER
+                      name: rows
+                      value: '2'
+                - type: svggraph
+                  name: 'Messages by response code'
+                  'y': '10'
+                  width: '36'
+                  height: '7'
+                  fields:
+                    - type: STRING
+                      name: ds.0.color.0
+                      value: FFD54F
+                    - type: STRING
+                      name: ds.0.color.1
+                      value: 0EC9AC
+                    - type: STRING
+                      name: ds.0.color.2
+                      value: 524BBC
+                    - type: STRING
+                      name: ds.0.color.3
+                      value: ED1248
+                    - type: STRING
+                      name: ds.0.color.4
+                      value: D1E754
+                    - type: STRING
+                      name: ds.0.color.5
+                      value: 2AB5FF
+                    - type: STRING
+                      name: ds.0.color.6
+                      value: 385CC7
+                    - type: STRING
+                      name: ds.0.color.7
+                      value: EC1594
+                    - type: INTEGER
+                      name: ds.0.dataset_type
+                      value: '0'
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '0'
+                    - type: ITEM
+                      name: ds.0.itemids.0
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.rcode.nodata
+                    - type: ITEM
+                      name: ds.0.itemids.1
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.rcode.noerror
+                    - type: ITEM
+                      name: ds.0.itemids.2
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.rcode.nxdomain
+                    - type: ITEM
+                      name: ds.0.itemids.3
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.rcode.refused
+                    - type: ITEM
+                      name: ds.0.itemids.4
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.rcode.servfail
+                    - type: ITEM
+                      name: ds.0.itemids.5
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.dnssec.bogus
+                    - type: ITEM
+                      name: ds.0.itemids.6
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.dnssec.bogus.rrset
+                    - type: ITEM
+                      name: ds.0.itemids.7
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.dnssec.secure
+                    - type: INTEGER
+                      name: legend_lines
+                      value: '10'
+                    - type: INTEGER
+                      name: legend_lines_mode
+                      value: '1'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: EKEPD
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+                - type: item
+                  name: 'Median recursion time'
+                  x: '12'
+                  width: '12'
+                  fields:
+                    - type: STRING
+                      name: down_color
+                      value: 43A047
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.recursion.time.median
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: show.1
+                      value: '4'
+                    - type: INTEGER
+                      name: show.2
+                      value: '5'
+                    - type: STRING
+                      name: sparkline.color
+                      value: 0D47A1
+                    - type: STRING
+                      name: sparkline.time_period._reference
+                      value: DASHBOARD._timeperiod
+                    - type: STRING
+                      name: updown_color
+                      value: 0288D1
+                    - type: STRING
+                      name: up_color
+                      value: D32F2F
+                - type: item
+                  name: 'Average recursion time'
+                  x: '24'
+                  width: '12'
+                  fields:
+                    - type: STRING
+                      name: down_color
+                      value: 43A047
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.recursion.time.avg
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: show.1
+                      value: '4'
+                    - type: INTEGER
+                      name: show.2
+                      value: '5'
+                    - type: STRING
+                      name: sparkline.color
+                      value: 6A1B9A
+                    - type: STRING
+                      name: sparkline.time_period._reference
+                      value: DASHBOARD._timeperiod
+                    - type: STRING
+                      name: updown_color
+                      value: 0288D1
+                    - type: STRING
+                      name: up_color
+                      value: D32F2F
+                - type: item
+                  name: 'Chache hits'
+                  x: '36'
+                  width: '12'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.cache.hits
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: show.1
+                      value: '5'
+                    - type: STRING
+                      name: sparkline.color
+                      value: 1B5E20
+                    - type: STRING
+                      name: sparkline.time_period._reference
+                      value: DASHBOARD._timeperiod
+                - type: svggraph
+                  name: 'Queries by type'
+                  x: '36'
+                  'y': '3'
+                  width: '36'
+                  height: '7'
+                  fields:
+                    - type: STRING
+                      name: ds.0.color.0
+                      value: FFD54F
+                    - type: STRING
+                      name: ds.0.color.1
+                      value: 0EC9AC
+                    - type: STRING
+                      name: ds.0.color.2
+                      value: 524BBC
+                    - type: STRING
+                      name: ds.0.color.3
+                      value: ED1248
+                    - type: STRING
+                      name: ds.0.color.4
+                      value: D1E754
+                    - type: STRING
+                      name: ds.0.color.5
+                      value: 2AB5FF
+                    - type: STRING
+                      name: ds.0.color.6
+                      value: 385CC7
+                    - type: STRING
+                      name: ds.0.color.7
+                      value: EC1594
+                    - type: STRING
+                      name: ds.0.color.8
+                      value: BAE37D
+                    - type: INTEGER
+                      name: ds.0.dataset_type
+                      value: '0'
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '0'
+                    - type: ITEM
+                      name: ds.0.itemids.0
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.queries.type.aaaa
+                    - type: ITEM
+                      name: ds.0.itemids.1
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.queries.type.a
+                    - type: ITEM
+                      name: ds.0.itemids.2
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.queries.type.cname
+                    - type: ITEM
+                      name: ds.0.itemids.3
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.queries.type.mx
+                    - type: ITEM
+                      name: ds.0.itemids.4
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.queries.type.ns
+                    - type: ITEM
+                      name: ds.0.itemids.5
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.queries.type.ptr
+                    - type: ITEM
+                      name: ds.0.itemids.6
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.queries.type.soa
+                    - type: ITEM
+                      name: ds.0.itemids.7
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.queries.type.srv
+                    - type: ITEM
+                      name: ds.0.itemids.8
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.queries.type.txt
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '6'
+                    - type: INTEGER
+                      name: legend_lines
+                      value: '10'
+                    - type: INTEGER
+                      name: legend_lines_mode
+                      value: '1'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: TEAVK
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+                - type: svggraph
+                  name: 'Unbound memory usage'
+                  x: '36'
+                  'y': '10'
+                  width: '36'
+                  height: '7'
+                  fields:
+                    - type: STRING
+                      name: ds.0.color.0
+                      value: FFB74D
+                    - type: STRING
+                      name: ds.0.color.1
+                      value: 1565C0
+                    - type: STRING
+                      name: ds.0.color.2
+                      value: B71C1C
+                    - type: STRING
+                      name: ds.0.color.3
+                      value: B3E5FC
+                    - type: STRING
+                      name: ds.0.color.4
+                      value: D1E754
+                    - type: INTEGER
+                      name: ds.0.dataset_type
+                      value: '0'
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '2'
+                    - type: ITEM
+                      name: ds.0.itemids.0
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.memory.iterator
+                    - type: ITEM
+                      name: ds.0.itemids.1
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.memory.message_cache
+                    - type: ITEM
+                      name: ds.0.itemids.2
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.memory.rrset_cache
+                    - type: ITEM
+                      name: ds.0.itemids.3
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.memory.cache.total
+                    - type: ITEM
+                      name: ds.0.itemids.4
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.memory.validator
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '6'
+                    - type: INTEGER
+                      name: legend_lines
+                      value: '5'
+                    - type: INTEGER
+                      name: legend_lines_mode
+                      value: '1'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: SNHDR
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+                - type: item
+                  name: 'Chache misses'
+                  x: '48'
+                  width: '12'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.cache.misses
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: show.1
+                      value: '5'
+                    - type: STRING
+                      name: sparkline.color
+                      value: B71C1C
+                    - type: STRING
+                      name: sparkline.time_period._reference
+                      value: DASHBOARD._timeperiod
+                - type: item
+                  name: 'Recursive replies'
+                  x: '60'
+                  width: '12'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Unbound by Zabbix Agent'
+                        key: unbound.recursion.replies
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: show.1
+                      value: '5'
+                    - type: STRING
+                      name: sparkline.color
+                      value: 01579B
+                    - type: STRING
+                      name: sparkline.time_period._reference
+                      value: DASHBOARD._timeperiod
+  graphs:
+    - uuid: a61e16e113154258ba799306634acfea
+      name: 'Queries by type'
+      yaxismax: '0'
+      graph_items:
+        - color: 199C0D
+          calc_fnc: ALL
+          item:
+            host: 'Unbound by Zabbix Agent'
+            key: unbound.queries.type.aaaa
+        - sortorder: '1'
+          color: F63100
+          calc_fnc: ALL
+          item:
+            host: 'Unbound by Zabbix Agent'
+            key: unbound.queries.type.a
+        - sortorder: '2'
+          color: 2774A4
+          calc_fnc: ALL
+          item:
+            host: 'Unbound by Zabbix Agent'
+            key: unbound.queries.type.cname
+        - sortorder: '3'
+          color: F7941D
+          calc_fnc: ALL
+          item:
+            host: 'Unbound by Zabbix Agent'
+            key: unbound.queries.type.mx
+        - sortorder: '4'
+          color: FC6EA3
+          calc_fnc: ALL
+          item:
+            host: 'Unbound by Zabbix Agent'
+            key: unbound.queries.type.ns
+        - sortorder: '5'
+          color: 6C59DC
+          calc_fnc: ALL
+          item:
+            host: 'Unbound by Zabbix Agent'
+            key: unbound.queries.type.ptr
+        - sortorder: '6'
+          color: C7A72D
+          calc_fnc: ALL
+          item:
+            host: 'Unbound by Zabbix Agent'
+            key: unbound.queries.type.soa
+        - sortorder: '7'
+          color: BA2A5D
+          calc_fnc: ALL
+          item:
+            host: 'Unbound by Zabbix Agent'
+            key: unbound.queries.type.srv
+        - sortorder: '8'
+          color: F230E0
+          calc_fnc: ALL
+          item:
+            host: 'Unbound by Zabbix Agent'
+            key: unbound.queries.type.txt
