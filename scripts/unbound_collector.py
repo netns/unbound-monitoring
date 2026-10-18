@@ -50,19 +50,6 @@ def get_unbound_statistics() -> str:
     return result.stdout
 
 
-def send_to_zabbix(
-    zabbix_ip: str, hostname: str, items: dict[str, str | int | float]
-) -> None:
-    payload = "".join(f"{hostname} {key} {value}\n" for key, value in items.items())
-
-    subprocess.run(
-        ["zabbix_sender", "-z", zabbix_ip, "-i", "-"],
-        input=payload,
-        text=True,
-        check=True,
-    )
-
-
 def parse_values(raw: str) -> dict[str, str]:
     data = {}
     for line in raw.splitlines():
@@ -272,7 +259,7 @@ def run(argv: list) -> None:
         and argv[1] == "-f"
         and Path(argv[2]).resolve().expanduser().exists()
     ):
-        raw = Path("unbound-stats").read_text()
+        raw = Path(argv[2]).read_text()
     else:
         raw = get_unbound_statistics()
 

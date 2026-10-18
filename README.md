@@ -1,12 +1,8 @@
-# Unbound DNS Anycast Monitoring with Zabbix
+# Unbound DNS monitoring with Zabbix
 
-A Zabbix monitoring project for Unbound DNS resolvers in an Anycast environment, featuring a custom monitoring template, a Python-based statistics collector, and a dashboard for operational visibility.
+A Zabbix monitoring project for Unbound DNS resolvers, featuring a custom monitoring template, a Python-based statistics collector, and a dashboard for operational visibility.
 
 The collector retrieves statistics through `unbound-control`, parses the output into JSON, and exposes the collected metrics through a Zabbix Agent `UserParameter`. The template can use this data to monitor DNS query activity, cache behavior, recursive resolution, DNSSEC validation, request-list utilization, memory usage, and other resolver statistics.
-
-The project also explores DNS health monitoring and Anycast route management through FRRouting (FRR), using OSPF and OSPFv3.
-
-**Project status:** Work in progress.
 
 ## Overview
 
@@ -25,7 +21,7 @@ Key components:
 
 The Zabbix dashboard provides an overview of Unbound DNS resolver activity, including query statistics, cache performance, recursive resolution, DNSSEC validation, and resource utilization.
 
-![Unbound DNS Anycast Monitoring Dashboard](res/images/dashboard.png)
+![Unbound DNS Monitoring Dashboard](res/images/dashboard.png)
 
 ## Architecture
 
