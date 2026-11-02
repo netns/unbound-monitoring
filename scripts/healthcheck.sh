@@ -27,20 +27,10 @@
 
 set -e
 
+#region OSPF and Routing
+
 IP_ADDRESS="172.31.0.15/32"
 IPV6_ADDRESS="2001:DB8::FF/128"
-
-DOMAINS=(
-    www.google.com
-    www.youtube.com
-    www.netflix.com
-    www.facebook.com
-    www.instagram.com
-)
-
-FAILURE_THRESHOLD=3
-SUCCESS_THRESHOLD=3
-DNS_SERVER="127.0.0.1"
 
 conf_ospf()
 {
@@ -49,43 +39,71 @@ conf_ospf()
 
 remove_from_ospf()
 {
-    conf_ospf "no ip prefix-list DNS-ANYCAST-V4 seq 10"
-    conf_ospf "no ipv6 prefix-list DNS-ANYCAST-V6 seq 10"
+    conf_ospf "no ip prefix-list ANYCAST-DNS-V4 seq 10"
+    conf_ospf "no ipv6 prefix-list ANYCAST-DNS-V6 seq 10"
 }
 
 add_to_ospf()
 {
-    conf_ospf "ip prefix-list DNS-ANYCAST-V4 seq 10 $IP_ADDRESS"
-    conf_ospf "ipv6 prefix-list DNS-ANYCAST-V6 seq 10 $IPV6_ADDRESS"
-}
-
-test_dns()
-{
-    local domain
-
-    for domain in "${DOMAINS[@]}"; do
-        if ! dig @"$DNS_SERVER" "$domain" A \
-            +time=2 +tries=1 +short |
-            grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
-            return 1
-        fi
-    done
-
-    return 0
+    conf_ospf "ip prefix-list ANYCAST-DNS-V4 seq 10 $IP_ADDRESS"
+    conf_ospf "ipv6 prefix-list ANYCAST-DNS-V6 seq 10 $IPV6_ADDRESS"
 }
 
 is_announced() {
-    local config
-
     config=$(vtysh -c 'show running-config') || return 1
 
     if grep -Fq "ip prefix-list ANYCAST-DNS-V4 seq 10 permit $IP_ADDRESS" <<< "$config" ||
-       grep -Fq "ipv6 prefix-list ANYCAST-DNS-V6 seq 10 permit $IPV6_ADDRESS" <<< "$config"; then
+       grep -Fq "ipv6 prefix-list ANYCAST-DNS-V6 seq 10 permit $IPV6_ADDRESS" <<< "$config"
+    then
         return 0
     fi
 
     return 1
 }
+
+#endregion
+
+#region Alerts
+
+ZABBIX_IP=$1
+HOSTNAME=$2
+ITEM_KEY="unbound.status"
+
+send_error()
+{
+    zabbix_sender -z "$ZABBIX_IP" -s "$HOSTNAME" -k "$ITEM_KEY" -o "Failure" >/dev/null 2>&1
+}
+
+send_success()
+{
+    zabbix_sender -z "$ZABBIX_IP" -s "$HOSTNAME" -k "$ITEM_KEY" -o "Operational" >/dev/null 2>&1
+}
+
+#endregion
+
+# Percent
+FAILURE_THRESHOLD=100
+SUCCESS_THRESHOLD=100
+
+DNS_SERVER="192.168.0.5"
+
+DOMAINS=(
+    "www.google.com"
+    "www.youtube.com"
+    "www.cloudflare.com"
+    "www.wikipedia.org"
+    "www.microsoft.com"
+    "www.apple.com"
+    "www.amazon.com"
+    "www.facebook.com"
+    "www.instagram.com"
+    "www.netflix.com"
+    "www.github.com"
+    "www.debian.org"
+    "www.gov.br"
+    "www.uol.com.br"
+    "www.globo.com"
+)
 
 run()
 {
@@ -117,12 +135,51 @@ run()
     # TODO: Implement the logic according to the deployment environment
     # and the chosen monitoring and notification strategy.
 
-    exec 150>/run/dns-anycast.lock
+    exec 150>/home/daniel/dns.lock
     flock -n 150 || return 0
 
-    if ! systemctl is-active --quiet unbound; then
+    if ! systemctl is-active --quiet unbound
+    then
+        
         systemctl restart unbound || true
         sleep 2
+    
+        systemctl is-active --quiet unbound || remove_from_ospf
+    
+    fi
+
+    failure=0
+    success=0
+    total_domains="${#DOMAINS[@]}"
+
+    for domain in "${DOMAINS[@]}"
+    do
+        # unbound-control flush "$domain"
+        if dig @"$DNS_SERVER" "$domain" A +time=2 +tries=1 +short |
+            grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'
+        then
+            printf '[%-4s]  %s\n' "OK" "$domain"
+            (( success += 1 ))
+        else
+            printf '[%-4s]  %s\n' "FAIL" "$domain"
+            (( failure += 1 ))
+        fi
+    done
+
+    failure_rate=$(( failure * 100 / total_domains ))
+    success_rate=$(( success * 100 / total_domains))
+    printf 'Failure rate: %d/%d (%.2f%%)\n' "$failure" "$total_domains" "$failure_rate"
+
+    if [[ $failure -ge $FAILURE_THRESHOLD ]] && is_announced
+    then
+        remove_from_ospf
+        send_error
+        exit
+    elif [[ $success_rate -ge $SUCCESS_THRESHOLD ]] && ! is_announced
+    then
+        add_to_ospf
+        send_success
+        exit
     fi
 }
 
