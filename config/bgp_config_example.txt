@@ -1,0 +1,26 @@
+ip prefix-list ANYCAST-DNS-V4 seq 10 permit 172.31.0.15/32
+ipv6 prefix-list ANYCAST-DNS-V6 seq 10 permit 2001:DB8::FF/128
+
+route-map OSPF-CONNECTED-V4 permit 10
+ match ip address prefix-list ANYCAST-DNS-V4
+
+route-map OSPF-CONNECTED-V6 permit 10
+ match ipv6 address prefix-list ANYCAST-DNS-V6
+
+
+! iBGP sessions with Route Reflectors
+router bgp 65000
+ neighbor 10.0.0.1 remote-as 65000
+ neighbor 2001:DB8::1 remote-as 65000
+
+ address-family ipv4 unicast
+  network 172.31.0.15/32
+  neighbor 10.0.0.1 activate
+  neighbor 10.0.0.1 route-map ANYCAST-DNS-OUT out
+ exit-address-family
+
+ address-family ipv6 unicast
+  network 2001:DB8::FF/128
+  neighbor 2001:DB8::1 activate
+  neighbor 2001:DB8::1 route-map ANYCAST-DNS-OUT out
+ exit-address-family
